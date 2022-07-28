@@ -1,4 +1,4 @@
-# Teknofest.org-Oto-Rapor-Indirme
+# Teknofest.org Otomatik Rapor İndirme
 teknofest.org'dan yarışmaların geçmiş yıl raporlarını kolayca indirmenizi sağlar.
 
 Kod "Sağlıkta Yapay Zeka" yarışması için denenmiştir ve hata olmadan çalışmıştır.
