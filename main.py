@@ -1,50 +1,51 @@
-import time
-
 import requests
 import re
 from bs4 import BeautifulSoup
 import os
 
+# "Yarışma Adı" şeklinde klasör açmamızı sağlar.
+def createFolderCompetition():
+    sectionList = []
+    global folder_location
+    
+    h1 = soup.select("h1")
+    for section in h1:
+        sectionList.append(section.text)
+
+    competitionName = sectionList[0]
+    
+    folder_location = rf'{competitionName}'
+    if not os.path.exists(folder_location): os.mkdir(folder_location)
+
+
 def download_PDF_Teknofest(url):
-	fileType = ".pdf"
-	response = requests.get(url)
+    global soup
+    fileType = ".pdf"
+    response = requests.get(url)
 
-	soup = BeautifulSoup(response.text, 'html.parser')
+    soup = BeautifulSoup(response.text, 'html.parser')
+    createFolderCompetition()
+    links = soup.find_all('a')
 
-	competitionNameCharList = []
-	h1 = soup.select("h1")
-	for section in h1:
-		competitionNameCharList.append(section.text)
+    i = 0
+    for link in links:
+        fileLink = link.get('href', [])
 
-	competitionName = competitionNameCharList[0]
+        if fileType in fileLink:
+            downloadableLink = re.sub(r"\s+", "", fileLink)
 
-	folder_location = rf'{competitionName}'
-	if not os.path.exists(folder_location): os.mkdir(folder_location)
+            i += 1
+            print("Downloading file: ", i)
+            response = requests.get(downloadableLink)
 
-	links = soup.find_all('a')
+            # Write content in pdf file
+            pdf = open(f"{folder_location}/PDF-{i}.pdf", "wb")
+            pdf.write(response.content)
+            pdf.close()
+            print("File ", i, " downloaded")
 
-	i = 0
-	for link in links:
-		fileLink = link.get('href', [])
+    print("All PDF files downloaded")
 
-		if fileType in fileLink:
-			print(fileLink)
-			downloadableLink = re.sub(r"\s+", "", fileLink)
-			print(downloadableLink)
 
-			i += 1
-			print("Downloading file: ", i)
-			response = requests.get(downloadableLink)
-
-			# Write content in pdf file
-			pdf = open(f"{folder_location}/PDF-{i}.pdf", "wb")
-			pdf.write(response.content)
-			pdf.close()
-			print("File ", i, " downloaded")
-			time.sleep(3)
-
-	print("All PDF files downloaded")
-
-url = "https://teknofest.org/tr/competitions/competition/33"
-
+url = "https://teknofest.org/tr/competitions/competition/29"
 download_PDF_Teknofest(url)
